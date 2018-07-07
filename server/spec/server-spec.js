@@ -40,7 +40,7 @@ describe('Persistent Node Chat Server', function() {
         uri: 'http://127.0.0.1:3000/classes/messages',
         json: {
           username: 'Valjean',
-          message: 'In mercy\'s name, three days is all I need.',
+          text: 'In mercys name, three days is all I need.',
           roomname: 'Hello'
         }
       }, function () {
@@ -54,10 +54,11 @@ describe('Persistent Node Chat Server', function() {
 
         dbConnection.query(queryString, queryArgs, function(err, results) {
           // Should have one result:
+          // console.log(results)
           expect(results.length).to.equal(1);
-
           // TODO: If you don't have a column named text, change this test.
-          expect(results[0].text).to.equal('In mercy\'s name, three days is all I need.');
+          // console.log(results)
+          expect(results[0].message).to.equal('In mercys name, three days is all I need.');
 
           done();
         });
@@ -67,8 +68,14 @@ describe('Persistent Node Chat Server', function() {
 
   it('Should output all messages from the DB', function(done) {
     // Let's insert a message into the db
-       var queryString = "";
+       var queryString = "SELECT * FROM messages";
        var queryArgs = [];
+
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: { username: 'Valjean', text:'Men like you can never change!', roomname: 'main'}
+    });
     // TODO - The exact query string and query args to use
     // here depend on the schema you design, so I'll leave
     // them up to you. */
@@ -80,8 +87,8 @@ describe('Persistent Node Chat Server', function() {
       // the message we just inserted:
       request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
         var messageLog = JSON.parse(body);
-        expect(messageLog[0].text).to.equal('Men like you can never change!');
-        expect(messageLog[0].roomname).to.equal('main');
+        expect(messageLog.results[0].text).to.equal('Men like you can never change!');
+        expect(messageLog.results[0].roomname).to.equal('main');
         done();
       });
     });
